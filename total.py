@@ -1,13 +1,38 @@
-import pcap_open as po
+class PacketList:
+    def __init__(self):
+        self.packet_list = []
+
+    def append_packet(self,packet):
+        self.packet_list.append(packet)
+
+
+
+class Packet_Parser:
+
+    def file_open(self):
+        filename = input("input filename : ")
+        #fp = open(filename,"rb")
+        fp = open("test.pcap","rb")
+        pcap_data = fp.read()
+        hex_data = ['0x'+'{:02x}'.format(i) for i in pcap_data]
+        #print(hex_data)
+        return hex_data
+
+
+#main()
+
+# int('16진수 문자열',16) => 16진수 값을 10진수로 변환해줌
 
 
 class Pcap_Parser:
     ''' PCAP FILE FORMAT PARSER '''
 
-    def __init__(self,data):
+    def __init__(self):
+        self.packet_in_pcap = []
+        self.pcap = Packet_Parser()
+        self.data = self.pcap.file_open()
+        self.pcap_data = self.data[0:40]
 
-        self.pcap_data = data[0:40]
-        self.actual_packet = data[40:]
 
         self.global_header = {
             'magic_number': self.pcap_data[0:4],
@@ -39,9 +64,7 @@ class Pcap_Parser:
 
 
 
-
-
-
+pl  = PacketList()
 p=Pcap_Parser()
 p.print_GH()
 p.print_PH()
