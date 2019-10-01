@@ -60,8 +60,11 @@ class Packet_Parser:
         for key, value in self.ether_frame.items():
             print("{0} : {1} ".format(key, value))
 
-
-
+    def print_mac(self):
+        self.dst = ':'.join(self.ether_frame['dst_mac'])
+        self.src = ':'.join(self.ether_frame['src_mac'])
+        print("dst_mac: ",self.dst)
+        print("src_mac: ",self.src)
 
 
 
@@ -97,9 +100,11 @@ def pcap2packet():
         packet = Packet_Parser(data)
         packet.print_PH()
         packet.print_ETH()
+        packet.print_mac()
         packet_list.append(packet)
         data = packet.next_header
         packet_len += (packet.packet_size+16)
+
 
 
 
