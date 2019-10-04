@@ -44,9 +44,9 @@ class Packet_Parser:
         self.packet_buff = pcap_data[16:16 + self.packet_size]
 
         self.ether_frame = {
-            'dst_mac': self.packet_buff[:6],
-            'src_mac': self.packet_buff[6:12],
-            'ether_type': self.packet_buff[12:14]
+            'dst_mac': ':'.join(self.packet_buff[:6]),
+            'src_mac': ':'.join(self.packet_buff[6:12]),
+            'ether_type': self.packet_buff[12]+self.packet_buff[13]
 
         }
 
@@ -60,11 +60,11 @@ class Packet_Parser:
         for key, value in self.ether_frame.items():
             print("{0} : {1} ".format(key, value))
 
-    def print_mac(self):
-        self.dst = ':'.join(self.ether_frame['dst_mac'])
-        self.src = ':'.join(self.ether_frame['src_mac'])
-        print("dst_mac: ",self.dst)
-        print("src_mac: ",self.src)
+    # def print_mac(self):
+    #     self.dst = ':'.join(self.ether_frame['dst_mac'])
+    #     self.src = ':'.join(self.ether_frame['src_mac'])
+    #     print("dst_mac: ",self.dst)
+    #     print("src_mac: ",self.src)
 
 
 
