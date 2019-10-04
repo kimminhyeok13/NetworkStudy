@@ -30,6 +30,7 @@ class Pcap_Parser:
             print("{0} : {1} ".format(key, value))
 
 
+
 class Packet_Parser:
 
     def __init__(self, pcap_data):
@@ -49,6 +50,7 @@ class Packet_Parser:
             'ether_type': self.packet_buff[12]+self.packet_buff[13]
 
         }
+        self.check_etherType()
 
     def print_PH(self):
         print("--------------PACKET HEADER-------------")
@@ -60,6 +62,18 @@ class Packet_Parser:
         for key, value in self.ether_frame.items():
             print("{0} : {1} ".format(key, value))
 
+    def check_etherType(self):
+        protocol = ether_type[self.ether_frame['ether_type']]
+        if protocol == 'ARP':
+            self.ether_frame['ether_type'] = ARP(self.packet_buff[14:])
+        elif protocol == 'RARP':
+            self.ether_frame['ether_type'] = ARP(self.packet_buff[14:])
+        elif protocol =='IP':
+            # self.ether_frame['ether_type'] = IP(self.packet_buff)
+            print("----------IP Header---------------")
+            self.ether_frame['ether_type'] = IP(self.packet_buff[14:])
+
+
     # def print_mac(self):
     #     self.dst = ':'.join(self.ether_frame['dst_mac'])
     #     self.src = ':'.join(self.ether_frame['src_mac'])
@@ -67,7 +81,43 @@ class Packet_Parser:
     #     print("src_mac: ",self.src)
 
 
+class IP:
+    def __init__(self,packet_buff):
+        self.ip_header = {
+            'Version and IHL' : packet_buff[:1],
+            'Type of Service' : packet_buff[1:2],
+            'Total length' : packet_buff[2:4],
+            'Identification' : packet_buff[4:6],
+            'Flags and Fragment offset' : packet_buff[6:8],
+            'TTL' : packet_buff[8:9],
+            'Protocol' : packet_buff[9:10],
+            'Header Checksum' : packet_buff[10:12],
+            # 'Src IP' : packet_buff[12:16],
+            # 'Dst IP' : packet_buff[16:20],
+            'Src IP' : '.'.join([str(int(i,16)) for i in packet_buff[12:16]]),
+            'Dst IP': '.'.join([str(int(i, 16)) for i in packet_buff[16:20]]),
+            'OPtion and Data' : packet_buff[20:]
 
+        }
+        print(self.ip_header['Src IP'], self.ip_header['Dst IP'])
+
+
+
+
+class ARP:
+    def __init__(self,packet_buff):
+        self.arp={
+            'Hardware Type' : packet_buff[:4],
+            'Protocol Type' : packet_buff[4:8],
+            'Hardware Length' : packet_buff[8:10],
+            'Protocol Length' : packet_buff[10:12],
+            'Operation' : packet_buff[12:16],
+            'Sender Hardware Address' : packet_buff[16:24],
+            'Sender IP Address' : packet_buff[24:32],
+            'Target Hardware Address':packet_buff[32:40],
+            'Target IP Address' : packet_buff[40:48]
+
+        }
 
 
 def little_endian(value_list):
@@ -102,7 +152,7 @@ def pcap2packet():
         packet = Packet_Parser(data)
         packet.print_PH()
         packet.print_ETH()
-        packet.print_mac()
+        # packet.print_mac()
         packet_list.append(packet)
         data = packet.next_header
         packet_len += (packet.packet_size+16)
